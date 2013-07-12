@@ -1,0 +1,38 @@
+#
+# Virtual Host def for Debian package DAViCal
+<VirtualHost *:80>
+ DocumentRoot /usr/share/davical/htdocs
+ ServerName caldav01.interlegis.leg.br
+ Alias /images/ /usr/share/davical/htdocs/images/
+ <Directory /usr/share/davical/htdocs/>
+     AllowOverride None
+     Order allow,deny
+     Allow from all
+ </Directory>
+ php_value include_path /usr/share/awl/inc
+ php_value magic_quotes_gpc 0
+ php_value register_globals 0
+ php_value error_reporting "E_ALL & ~E_NOTICE"
+ php_value default_charset "utf-8"
+
+ RewriteEngine On
+ # Not if it's the root URL.  You might want to comment this out if you
+ # want to use an explicit /index.php for getting to the admin pages.
+ 
+ #RewriteCond %{REQUEST_URI} !^/$
+ 
+ # Not if it explicitly specifies a .php program, stylesheet or image
+ # NOTICE THIS IS VERY IMPORTANT IF YOU NEED ACCESS FROM IOS 5 DEVICES
+ # since IOS 5 for some reasons insists on prefixing the URL with /caldav.php
+ # an refuses to communicate with DAViCal if returned URL's does not contain
+ # a URL prefixed with /caldav.php
+ RewriteCond %{REQUEST_URI} !\.(php|css|js|png|gif|jpg)
+
+ # Not if it's an existing file
+ RewriteCond %{DOCUMENT_ROOT}%{REQUEST_FILENAME} !-d
+ RewriteCond %{DOCUMENT_ROOT}%{REQUEST_FILENAME} !-f
+ 
+ # Everything else gets rewritten to /caldav.php/... 
+ RewriteRule ^(.*)$ /caldav.php/$1  [NC,L]
+
+</VirtualHost>
