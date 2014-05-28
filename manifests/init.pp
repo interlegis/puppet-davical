@@ -24,6 +24,10 @@ class davical (	$dbserver,
                 "davical",
         ]
 
+        apt::hold { 'libawl-php':
+  		version => '0.53-1',
+	}
+
         # install Prereqs
         package { $prereqs:
                 ensure => latest,
@@ -33,10 +37,13 @@ class davical (	$dbserver,
                 ensure => absent,
         }
 
-	file {"/etc/apt/sources.list.d/davical.list":
-		owner => root, group => root, mode => 444,
-                source => "puppet:///modules/davical/davical.list"
-	}
+        apt::source { 'davical':
+  		location   => 'http://debian.mcmillan.net.nz/debian',
+  		release    => 'precise',
+                repos      => 'awm', 
+                key        => '8FEB8EBF',
+                key_server => 'pgp.net.nz',
+        }
 
 	file {'/etc/apache2/sites-available/default':
                 content => template('davical/default.apache2.erb'),
